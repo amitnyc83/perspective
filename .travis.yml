@@ -15,9 +15,26 @@ matrix:
       env: TEST=CPP
       services: docker
 
-    - python: "3.6"
+    - python: "3.7"
+      language: python
+      env: TEST=PYTHON PSP_DOCKER=1
+      cache: pip
+      services: docker
+
+    - python: "3.7"
       language: python
       env: TEST=PYTHON
+      cache: pip
+
+    - python: "3.7"
+      language: python
+      env: TEST=PYTHON
+      cache: pip
+      os: osx
+
+    - python: "2.7"
+      language: python
+      env: TEST=PYTHON2 PSP_DOCKER=1
       cache: pip
       services: docker
 
@@ -25,7 +42,12 @@ matrix:
       language: python
       env: TEST=PYTHON2
       cache: pip
-      services: docker
+
+    - python: "2.7"
+      language: python
+      env: TEST=PYTHON2
+      cache: pip
+      os: osx
 
     - language: c++
       env: TEST=CPP_OSX
@@ -58,7 +80,7 @@ script:
   - if [ "$TEST" = "WASM" ]; then PSP_DOCKER=1 yarn test_js --quiet; fi
   - if [ "$TEST" = "CPP" ]; then PSP_DOCKER=1 yarn build_cpp; fi
   - if [ "$TEST" = "CPP" ]; then PSP_DOCKER=1 yarn test_cpp; fi
-  - if [ "$TEST" = "PYTHON" ]; then PSP_DOCKER=1 yarn ci_python; fi
-  - if [ "$TEST" = "PYTHON2" ]; then PSP_DOCKER=1 yarn ci_python --python2; fi
+  - if [ "$TEST" = "PYTHON" ]; then yarn ci_python; fi
+  - if [ "$TEST" = "PYTHON2" ]; then yarn ci_python --python2; fi
   - if [ "$TEST" = "CPP_OSX" ]; then yarn build_cpp; fi
   - if [ "$TEST" = "CPP_OSX" ]; then yarn test_cpp; fi
