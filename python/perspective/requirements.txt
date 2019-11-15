@@ -1,4 +1,4 @@
-backports.shutil_which:python_version < "3"
+backports.shutil_which;python_version < "3"
 ipywidgets>=7.4.2
 numpy>=1.13.1
 pandas>=0.22.0
