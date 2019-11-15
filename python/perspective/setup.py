@@ -51,6 +51,7 @@ version = get_version(os.path.join(here, 'perspective', 'core', '_version.py'))
 ZMQ_ERROR = """`zerorpc` install failed, node module will be unavailable.
 Run `yarn add zerorpc` to fix."""
 
+
 class PSPExtension(Extension):
     def __init__(self, name, sourcedir='dist'):
         Extension.__init__(self, name, sources=[])
