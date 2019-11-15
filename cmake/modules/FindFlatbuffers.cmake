@@ -35,6 +35,10 @@ find_program(FLATBUFFERS_COMPILER flatc
   HINTS /usr/local/bin /usr/bin /usr/local/Homebrew/bin ~/homebrew/bin
   NO_SYSTEM_ENVIRONMENT_PATH)
 
+if(NOT FLATBUFFERS_INCLUDE_DIR)
+  # HACK
+  set(FLATBUFFERS_INCLUDE_DIR /usr/local/include)
+endif()
 message("${FLATBUFFERS_COMPILER}")
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(FLATBUFFERS REQUIRED_VARS
