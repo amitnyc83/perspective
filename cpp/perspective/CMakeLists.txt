@@ -541,7 +541,7 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 			# Link binding code to pyarrow
             target_link_libraries(binding ${PYTHON_PYARROW_PYTHON_SHARED_LIBRARY} ${PYTHON_PYARROW_ARROW_SHARED_LIBRARY})
             # Add custom @rpath to binding
-			set_target_properties(binding PROPERTIES INSTALL_RPATH "${PSP_INSTALL_PATH}")
+			set_target_properties(binding PROPERTIES INSTALL_RPATH ${module_install_rpath})
 		endif()
 		target_link_libraries(binding ${PYTHON_LIBRARIES})
 		add_custom_command(TARGET binding POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:binding> ${PSP_PYTHON_SRC}/table/)
