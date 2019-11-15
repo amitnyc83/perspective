@@ -501,7 +501,7 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 		set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 		set(CMAKE_MACOSX_RPATH 1)
 
-	    if(MACOS)
+        if(MACOS OR LINUX)
 	      set(module_install_rpath "@loader_path/")
 	    else()
 	      set(module_install_rpath "\$ORIGIN")
