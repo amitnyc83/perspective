@@ -154,3 +154,6 @@ python/cpp
 python/perspective/perspective_python.egg-info
 python/perspective/perspective/tests/table/psp_test
 python/perspective/perspective/node/assets/*
+python/perspective/coverage.xml
+python/perspective/docs/_build
+python/perspective/docs/api

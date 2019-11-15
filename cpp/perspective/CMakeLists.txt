@@ -508,7 +508,6 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 		target_link_libraries(psp ${PYTHON_LIBRARIES})
 		add_custom_command(TARGET psp POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:psp> ${PSP_PYTHON_SRC}/table/)
 
-		set(CMAKE_SHARED_LIBRARY_SUFFIX .so)
 
 		add_library(binding SHARED ${PYTHON_SOURCE_FILES})
 
