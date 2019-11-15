@@ -179,7 +179,7 @@ class PSPBuild(build_ext):
                 print(out1.decode())
                 print(out2.decode())
                 raise
-        print(out1)
+        print(out1.decode())
 
         try:
             out2 = subprocess.check_output([self.cmake_cmd, '--build', '.'] + build_args, cwd=self.build_temp, env=env, stderr=subprocess.STDOUT)
