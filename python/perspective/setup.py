@@ -5,6 +5,7 @@
 # This file is part of the Perspective library, distributed under the terms of
 # the Apache License 2.0.  The full license can be found in the LICENSE file.
 #
+from __future__ import print_function
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
@@ -178,6 +179,7 @@ class PSPBuild(build_ext):
                 print(out1.decode())
                 print(out2.decode())
                 raise
+        print(out1)
 
         try:
             out2 = subprocess.check_output([self.cmake_cmd, '--build', '.'] + build_args, cwd=self.build_temp, env=env, stderr=subprocess.STDOUT)
@@ -185,6 +187,7 @@ class PSPBuild(build_ext):
             print(out1.decode())  # output previous result
             print(e.output.decode())
             raise
+        print(out2)
         print()  # Add an empty line for cleaner output
 
 
