@@ -27,7 +27,7 @@
 # https://gitlab.kitware.com/cmake/cmake/issues/19120
 find_path(FLATBUFFERS_INCLUDE_DIR flatbuffers/flatbuffers.h
   PATHS ${FLATBUFFERS_ROOT}/include
-  HINTS /usr/local /usr/local/flatbuffers /usr/local/Homebrew /usr ~/homebrew/ /usr/local/include /usr/local/flatbuffers/include /usr/include ~/homebrew/include
+  HINTS /usr/local /usr/local/flatbuffers /usr/local/Homebrew /usr ~/homebrew/ /usr/local/include /usr/local/flatbuffers/include /usr/include ~/homebrew/include /usr/local/flatbuffers/include
   NO_CMAKE_SYSTEM_PATH
   NO_SYSTEM_ENVIRONMENT_PATH)
 
@@ -36,11 +36,6 @@ find_program(FLATBUFFERS_COMPILER flatc
   HINTS /usr/local/bin /usr/bin /usr/local/Homebrew/bin ~/homebrew/bin
   NO_CMAKE_SYSTEM_PATH
   NO_SYSTEM_ENVIRONMENT_PATH)
-
-if(NOT ${FLATBUFFERS_INCLUDE_DIR})
-  # HACK
-  set(FLATBUFFERS_INCLUDE_DIR /usr/local/include)
-endif()
 
 message("${FLATBUFFERS_COMPILER}")
 include(FindPackageHandleStandardArgs)
