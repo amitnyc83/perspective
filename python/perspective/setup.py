@@ -23,6 +23,7 @@ try:
     from shutil import which
 except ImportError:
     from backports.shutil_which import which
+
 here = os.path.abspath(os.path.dirname(__file__))
 
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
