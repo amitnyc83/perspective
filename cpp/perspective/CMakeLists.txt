@@ -15,6 +15,16 @@ set(CMAKE_MODULE_PATH "${PSP_CMAKE_MODULE_PATH}/modules" ${CMAKE_MODULE_PATH})
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set(WIN32 ON)
+    set(MACOS OFF)
+    set(LINUX OFF)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(WIN32 OFF)
+    set(MACOS ON)
+    set(LINUX OFF)
+else()
+    set(WIN32 OFF)
+    set(MACOS OFF)
+    set(LINUX ON)
 endif()
 
 
@@ -192,9 +202,16 @@ if (PSP_WASM_BUILD)
 	set(CMAKE_RANLIB emranlib)
 	set(CMAKE_EXECUTABLE_SUFFIX ".js")
 	list(APPEND CMAKE_PREFIX_PATH /usr/local)
-	include_directories("/usr/local/Homebrew/include")
-	include_directories("/usr/local/include" SYSTEM)
+
+    if(MACOS)
+        # use standard /usr/local homebrew install on mac
+	    include_directories("/usr/local/include" SYSTEM)
+    endif()
+
+    # Include this docker-only directory
 	include_directories("/boost_includes")
+    
+    # bundle rapidjson for wasm build
 	psp_build_dep("rapidjson" "${PSP_CMAKE_MODULE_PATH}/rapidjson.txt.in")
 
 	set(EXTENDED_FLAGS " \
@@ -290,13 +307,8 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 		find_package( Python ${PSP_PYTHON_VERSION} REQUIRED Interpreter Development )
 		include_directories( ${Python_INCLUDE_DIRS} )
 
+        # already found from before
 		find_package(Boost)
-		if(NOT Boost_FOUND)
-			message("${Red}Boost could not be located${ColorReset}")
-		else()
-			message("${Cyan}Found boost in ${Boost_INCLUDE_DIRS} ${Boost_LIBRARY_DIRS} ${ColorReset}")
-		endif()
-		include_directories( ${Boost_INCLUDE_DIRS} )
 
 		find_package(pybind11)
 		if(NOT pybind11_FOUND)
@@ -322,13 +334,12 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 			message(FATAL_ERROR "${Red}PyArrow could not be located${ColorReset}")
 		else()
 			message(WARNING "${Cyan}PyArrow found: ${PYTHON_PYARROW_INCLUDE_DIR}${ColorReset}")
-			if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-				message(WARNING "${Cyan}Using pre-built libarrow from: ${PYTHON_PYARROW_INCLUDE_DIR}${ColorReset}")
+            if (NOT WIN32)
+                message(WARNING "${Cyan}Using pre-built ${PYTHON_PYARROW_PYTHON_SHARED_LIBRARY} ${PYTHON_PYARROW_ARROW_SHARED_LIBRARY} from: ${PYTHON_PYARROW_LIBRARY_DIR}${ColorReset}")
 			endif()
 		endif()
 		include_directories(${PYTHON_PYARROW_INCLUDE_DIR})
 		link_directories(${PYTHON_PYARROW_LIBRARY_DIR})
-
 		#####################
 	endif()
 endif()
@@ -337,8 +348,8 @@ psp_build_dep("date" "${PSP_CMAKE_MODULE_PATH}/date.txt.in")
 psp_build_dep("hopscotch" "${PSP_CMAKE_MODULE_PATH}/hopscotch.txt.in")
 psp_build_dep("ordered-map" "${PSP_CMAKE_MODULE_PATH}/ordered-map.txt.in")
 
-# For all non-MacOS builds, or if building WASM/CPP, build minimal arrow from source
-if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR NOT PSP_PYTHON_BUILD)
+# For all non-MacOS and non-linux builds, or if building WASM/CPP, build minimal arrow from source
+if (WIN32 OR NOT PSP_PYTHON_BUILD)
 	# build arrow + dependencies from source for Emscripten and C++
 	message("${Cyan}Building minimal Apache Arrow${ColorReset}")
 
@@ -361,6 +372,10 @@ set(CMAKE_C_FLAGS " \
 	${EXTENDED_FLAGS} \
 	${OPT_FLAGS} \
 	")
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++1y")
+endif()
 
 set (SOURCE_FILES
 	${PSP_CPP_SRC}/src/cpp/aggregate.cpp
@@ -476,13 +491,12 @@ if (PSP_WASM_BUILD)
 	set_target_properties(perspective.async PROPERTIES RUNTIME_OUTPUT_DIRECTORY "./build/")
 	set_target_properties(perspective.async PROPERTIES OUTPUT_NAME "psp.async")
 elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
-	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    if(NOT WIN32)
 		# Look for the binary using @loader_path (relative to binary location) instead of @rpath
 		# and include arrow in @rpath so it can be found by libbinding/libpsp
-		set(PSP_INSTALL_PATH "@loader_path" ${PYTHON_PYARROW_LIBRARY_DIR})
+        set(PSP_INSTALL_PATH "@loader_path" ${PYTHON_PYARROW_LIBRARY_DIR})
 		set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-		set(CMAKE_SHARED_LIBRARY_SUFFIX .dylib)
-	endif()
+    endif()
 
 	if(PSP_PYTHON_BUILD)
 		########################
@@ -493,16 +507,13 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 		include_directories(${PSP_PYTHON_SRC}/include)
 		target_compile_definitions(psp PRIVATE PSP_ENABLE_PYTHON=1)
 
-		# On MacOS, link against libarrow 0.15.0 in pyarrow directory
-		# This does not work for Linux or Windows - prebuilt binaries for Linux must be backward compatible with GCC 4.8,
-		# which means they use the old ABI: https://github.com/blue-yonder/turbodbc/issues/102#issuecomment-312222949
-		if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-			target_link_libraries(psp ${PYTHON_PYARROW_SHARED_LIBRARY})
-			set_target_properties(psp PROPERTIES INSTALL_RPATH "${PSP_INSTALL_PATH}")
-		else()
+        # Link against libarrow 0.15.0 in pyarrow directory for windows
+        if (WIN32)
 			target_link_libraries(psp arrow)
 			target_link_libraries(psp ${Boost_FILESYSTEM_LIBRARY})
-			target_link_libraries(psp ${PYTHON_PYARROW_LIBRARIES})
+		else()
+            target_link_libraries(psp ${PYTHON_PYARROW_PYTHON_SHARED_LIBRARY} ${PYTHON_PYARROW_ARROW_SHARED_LIBRARY})
+			set_target_properties(psp PROPERTIES INSTALL_RPATH "${PSP_INSTALL_PATH}")
 		endif()
 
 		target_link_libraries(psp ${PYTHON_LIBRARIES})
@@ -516,14 +527,12 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 		target_link_libraries(binding psp)
 		target_link_libraries(binding tbb)
 
-		if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-			# Add custom @rpath to binding
-			set_target_properties(binding PROPERTIES INSTALL_RPATH "${PSP_INSTALL_PATH}")
-		else()
+        if (MACOS OR LINUX)
 			# Link binding code to pyarrow
-			target_link_libraries(binding ${PYTHON_PYARROW_LIBRARIES})
+            target_link_libraries(binding ${PYTHON_PYARROW_PYTHON_SHARED_LIBRARY} ${PYTHON_PYARROW_ARROW_SHARED_LIBRARY})
+            # Add custom @rpath to binding
+			set_target_properties(binding PROPERTIES INSTALL_RPATH "${PSP_INSTALL_PATH}")
 		endif()
-		target_link_libraries(binding ${PYTHON_PYARROW_SHARED_LIBRARY})
 		target_link_libraries(binding ${PYTHON_LIBRARIES})
 		add_custom_command(TARGET binding POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:binding> ${PSP_PYTHON_SRC}/table/)
 		########################
