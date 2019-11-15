@@ -50,8 +50,8 @@ set(PYTHON_PYARROW_LIBRARY_DIR ${__pyarrow_library_dirs})
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   # Link against pre-built libarrow on MacOS
-  set(PYTHON_PYARROW_PYTHON_SHARED_LIBRARY ${__pyarrow_library_dirs}/${CMAKE_SHARED_LIBRARY_PREFIX}arrow_python.15${CMAKE_SHARED_LIBRARY_SUFFIX})
-  set(PYTHON_PYARROW_ARROW_SHARED_LIBRARY ${__pyarrow_library_dirs}/${CMAKE_SHARED_LIBRARY_PREFIX}arrow.15${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(PYTHON_PYARROW_PYTHON_SHARED_LIBRARY ${__pyarrow_library_dirs}/${CMAKE_SHARED_LIBRARY_PREFIX}arrow_python.15.dylib)
+  set(PYTHON_PYARROW_ARROW_SHARED_LIBRARY ${__pyarrow_library_dirs}/${CMAKE_SHARED_LIBRARY_PREFIX}arrow.15.dylib)
 else()
   # linux
   set(PYTHON_PYARROW_PYTHON_SHARED_LIBRARY ${__pyarrow_library_dirs}/${CMAKE_SHARED_LIBRARY_PREFIX}arrow_python${CMAKE_SHARED_LIBRARY_SUFFIX}.15)
