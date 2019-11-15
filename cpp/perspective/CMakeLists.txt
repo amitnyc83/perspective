@@ -205,14 +205,11 @@ if (PSP_WASM_BUILD)
 	set(CMAKE_EXECUTABLE_SUFFIX ".js")
 	list(APPEND CMAKE_PREFIX_PATH /usr/local)
 
-    if(MACOS)
-        # use standard /usr/local homebrew install on mac
-	    include_directories("/usr/local/include" SYSTEM)
-    endif()
+	include_directories("/usr/local/include" SYSTEM)
 
     # Include this docker-only directory
 	include_directories("/boost_includes")
-    
+
     # bundle rapidjson for wasm build
 	psp_build_dep("rapidjson" "${PSP_CMAKE_MODULE_PATH}/rapidjson.txt.in")
 
