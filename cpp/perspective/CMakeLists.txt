@@ -13,6 +13,7 @@ if(NOT DEFINED PSP_CMAKE_MODULE_PATH)
 endif()
 set(CMAKE_MODULE_PATH "${PSP_CMAKE_MODULE_PATH}/modules" ${CMAKE_MODULE_PATH})
 
+set(PSP_ARROW_VERSION 0.15)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set(WIN32 ON)
     set(MACOS OFF)
@@ -183,6 +184,7 @@ if(PSP_BUILD_DOCS)
 else()
 	message(WARNING "${Cyan}Skipping Perspective Documentation${ColorReset}")
 endif()
+
 #######################
 include_directories("${CMAKE_SOURCE_DIR}/src/include")
 
@@ -492,10 +494,18 @@ if (PSP_WASM_BUILD)
 	set_target_properties(perspective.async PROPERTIES OUTPUT_NAME "psp.async")
 elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
     if(NOT WIN32)
+		set(CMAKE_SHARED_LIBRARY_SUFFIX .so)
+    	
 		# Look for the binary using @loader_path (relative to binary location) instead of @rpath
 		# and include arrow in @rpath so it can be found by libbinding/libpsp
-        set(PSP_INSTALL_PATH "@loader_path" ${PYTHON_PYARROW_LIBRARY_DIR})
 		set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+		set(CMAKE_MACOSX_RPATH 1)
+
+	    if(APPLE)
+	      set(module_install_rpath "@loader_path/")
+	    else()
+	      set(module_install_rpath "\$ORIGIN")
+	    endif()
     endif()
 
 	if(PSP_PYTHON_BUILD)
@@ -513,8 +523,7 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 			target_link_libraries(psp ${Boost_FILESYSTEM_LIBRARY})
 		else()
             target_link_libraries(psp ${PYTHON_PYARROW_PYTHON_SHARED_LIBRARY} ${PYTHON_PYARROW_ARROW_SHARED_LIBRARY})
-			set_target_properties(psp PROPERTIES INSTALL_RPATH "${PSP_INSTALL_PATH}")
-    		set(CMAKE_SHARED_LIBRARY_SUFFIX .so)
+			set_target_properties(psp PROPERTIES INSTALL_RPATH ${module_install_rpath})
         endif()
 
 		target_link_libraries(psp ${PYTHON_LIBRARIES})
