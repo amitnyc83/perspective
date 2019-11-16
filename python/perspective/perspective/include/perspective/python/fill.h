@@ -13,7 +13,6 @@
 #include <perspective/binding.h>
 #include <perspective/python/base.h>
 #include <perspective/utils.h>
-#include <cmath>
 
 namespace perspective {
 namespace binding {
