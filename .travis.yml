@@ -8,11 +8,11 @@ matrix:
   include:
     - node_js: "10"
       language: node_js
-      env: TEST=WASM
+      env: TEST=WASM PSP_DOCKER=1
       services: docker
 
     - language: c++
-      env: TEST=CPP
+      env: TEST=CPP PSP_DOCKER=1
       services: docker
 
     - python: "3.7"
@@ -26,9 +26,7 @@ matrix:
       env: TEST=PYTHON
       cache: pip
 
-    - python: "3.6"
-      language: python
-      env: TEST=PYTHON
+    - env: TEST=PYTHON
       cache: pip
       os: osx
 
@@ -43,9 +41,7 @@ matrix:
       env: TEST=PYTHON2
       cache: pip
 
-    - python: "2.7"
-      language: python
-      env: TEST=PYTHON2
+    - env: TEST=PYTHON2
       cache: pip
       os: osx
 
@@ -68,20 +64,25 @@ env:
 
 addons:
   apt:
+    update: true
     packages:
       - cmake
       - libboost-dev
+      - libtbb-dev
+  homebrew:
+    update: true
+    packages: 
+      - python
+      - python2
+      - cmake
+      - tbb
+      - flatbuffers
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update           ; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update ; fi
-
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install cmake tbb flatbuffers; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install cmake libboost-dev libtbb-dev; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget "https://github.com/google/flatbuffers/archive/v1.11.0.tar.gz" -O /tmp/flatbuffers.tar.gz && cd /tmp && tar xvfa /tmp/flatbuffers.tar.gz && cd flatbuffers-1.11.0 && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DFLATBUFFERS_BUILD_SHAREDLIB=ON && sudo make install && sudo cp flatc /usr/bin && cd && sudo rm -rf /tmp/flatbuffers.tar.gz /tmp/flatbuffers-1.11.0; fi
 
-  - if [ "$TRAVIS_OS_NAME" = "osx" && "$TEST" = "PYTHON"]; then brew upgrade python; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" && "$TEST" = "PYTHON2"]; then brew upgrade python2; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" && "$TEST" = "PYTHON"]; then brew upgrade python; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" && "$TEST" = "PYTHON2"]; then brew upgrade python2; fi
 
 install:
   - if [ "$TEST" = "CPP_OSX" ]; then brew install yarn; fi
@@ -92,11 +93,11 @@ install:
 
 script:
   - touch .perspectiverc
-  - if [ "$TEST" = "WASM" ]; then PSP_DOCKER=1 yarn lint; fi
-  - if [ "$TEST" = "WASM" ]; then PSP_DOCKER=1 yarn build_js; fi
-  - if [ "$TEST" = "WASM" ]; then PSP_DOCKER=1 yarn test_js --quiet; fi
-  - if [ "$TEST" = "CPP" ]; then PSP_DOCKER=1 yarn build_cpp; fi
-  - if [ "$TEST" = "CPP" ]; then PSP_DOCKER=1 yarn test_cpp; fi
+  - if [ "$TEST" = "WASM" ]; then yarn lint; fi
+  - if [ "$TEST" = "WASM" ]; then yarn build_js; fi
+  - if [ "$TEST" = "WASM" ]; then yarn test_js --quiet; fi
+  - if [ "$TEST" = "CPP" ]; then yarn build_cpp; fi
+  - if [ "$TEST" = "CPP" ]; then yarn test_cpp; fi
   - if [ "$TEST" = "PYTHON" ]; then yarn ci_python; fi
   - if [ "$TEST" = "PYTHON2" ]; then yarn ci_python --python2; fi
   - if [ "$TEST" = "CPP_OSX" ]; then yarn build_cpp; fi
