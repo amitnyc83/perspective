@@ -29,6 +29,7 @@ matrix:
     - env: TEST=PYTHON
       cache: pip
       os: osx
+      osx_image: xcode11.2
 
     - python: "2.7"
       language: python
@@ -44,10 +45,12 @@ matrix:
     - env: TEST=PYTHON2
       cache: pip
       os: osx
+      osx_image: xcode11.2
 
     - language: c++
       env: TEST=CPP_OSX
       os: osx
+      osx_image: xcode11.2
 
   allow_failures:
     - language: c++
