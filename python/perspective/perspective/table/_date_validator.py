@@ -51,7 +51,7 @@ class _PerspectiveDateValidator(object):
         '''
         try:
             return parse(str)
-        except (ValueError, OverflowError):
+        except (ValueError, OverflowError, IndexError):
             return None
 
     def to_date_components(self, obj):

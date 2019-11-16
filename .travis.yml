@@ -67,7 +67,7 @@ addons:
     update: true
     packages:
       - cmake
-      - libboost-dev
+      - libboost-all-dev
       - libtbb-dev
   homebrew:
     update: true
