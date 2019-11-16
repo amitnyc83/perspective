@@ -73,7 +73,6 @@ addons:
     packages:
       - libboost-all-dev
       - libtbb-dev
-    packages:
       - gcc-4.9
       - g++-4.9
   homebrew:
