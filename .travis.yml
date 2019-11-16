@@ -51,7 +51,7 @@ matrix:
 
   allow_failures:
     - language: c++
-      env: TEST=CPP
+      env: TEST=CPP PSP_DOCKER=1
       services: docker
 
     - language: c++
@@ -75,6 +75,7 @@ addons:
       - python
       - python2
       - cmake
+      - boost
       - tbb
       - flatbuffers
 
