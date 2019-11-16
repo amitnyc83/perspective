@@ -79,7 +79,7 @@ addons:
       - flatbuffers
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget "https://github.com/google/flatbuffers/archive/v1.11.0.tar.gz" -O /tmp/flatbuffers.tar.gz && cd /tmp && tar xvfa /tmp/flatbuffers.tar.gz && cd flatbuffers-1.11.0 && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DFLATBUFFERS_BUILD_SHAREDLIB=ON && sudo make install && sudo cp flatc /usr/bin && cd && sudo rm -rf /tmp/flatbuffers.tar.gz /tmp/flatbuffers-1.11.0; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export CUR_DIR=`pwd` && wget "https://github.com/google/flatbuffers/archive/v1.11.0.tar.gz" -O /tmp/flatbuffers.tar.gz && cd /tmp && tar xvfa /tmp/flatbuffers.tar.gz && cd flatbuffers-1.11.0 && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DFLATBUFFERS_BUILD_SHAREDLIB=ON && sudo make install && sudo cp flatc /usr/bin && cd $CUR_DIR && sudo rm -rf /tmp/flatbuffers.tar.gz /tmp/flatbuffers-1.11.0; fi
 
   # - if [ "$TRAVIS_OS_NAME" = "osx" && "$TEST" = "PYTHON"]; then brew upgrade python; fi
   # - if [ "$TRAVIS_OS_NAME" = "osx" && "$TEST" = "PYTHON2"]; then brew upgrade python2; fi
