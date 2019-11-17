@@ -31,12 +31,12 @@ RUN tar xfz boost_1_71_0.tar.gz
 RUN cd boost_1_71_0 && ./bootstrap.sh || echo "boostrap failed"
 RUN cd boost_1_71_0 && ./b2 -j4 install || echo "build boost failed" 
 
-RUN python3 -m pip install 'numpy>=1.13.1' 'pandas>=0.22.0' 'pyarrow==0.15.0'
+RUN python3 -m pip install 'numpy>=1.13.1' 'pandas>=0.22.0'
 
 # install pyarrow
 RUN wget https://github.com/apache/arrow/archive/apache-arrow-0.15.0.tar.gz >/dev/null 2>&1  || echo "wget arrow failed"
 RUN tar xfz apache-arrow-0.15.0.tar.gz
-RUN cd arrow-apache-arrow-0.15.0 && mkdir build && cd build && cmake ../cpp/ -DARROW_RPATH_ORIGIN=ON -DARROW_PYTHON=ON -DARROW_FLIGHT=OFF -DARROW_COMPUTE=OFF -DARROW_DATASET=OFF -DARROW_BUILD_UTILITIES=OFF -DARROW_JEMALLOC=OFF -DARROW_DEPENDENCY_SOURCE=BUNDLED -DARROW_HDFS=OFF -DARROW_WITH_BACKTRACE=OFF -DARROW_WITH_BROTLI=OFF -DARROW_WITH_BZ2=OFF -DARROW_WITH_LZ4=OFF -DARROW_WITH_SNAPPY=OFF -DARROW_WITH_ZLIB=OFF -DARROW_WITH_ZSTD=OFF && make -j2 && sudo make install && cd ../python && python3 -m pip install .
+RUN cd arrow-apache-arrow-0.15.0 && mkdir build && cd build && cmake ../cpp/ -DARROW_RPATH_ORIGIN=ON -DARROW_PYTHON=ON -DARROW_FLIGHT=ON -DARROW_COMPUTE=OFF -DARROW_DATASET=OFF -DARROW_BUILD_UTILITIES=OFF -DARROW_JEMALLOC=OFF -DARROW_DEPENDENCY_SOURCE=BUNDLED -DARROW_HDFS=OFF -DARROW_WITH_BACKTRACE=OFF -DARROW_WITH_BROTLI=OFF -DARROW_WITH_BZ2=OFF -DARROW_WITH_LZ4=OFF -DARROW_WITH_SNAPPY=OFF -DARROW_WITH_ZLIB=OFF -DARROW_WITH_ZSTD=OFF && make -j2 && sudo make install && cd ../python && python -m pip install .
 
 # install node
 RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
