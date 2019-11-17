@@ -307,7 +307,7 @@ namespace numpy {
             }
 
             bool is_float = py::isinstance<py::float_>(item);
-            bool is_numpy_nan = is_float && npy_isnan(item.cast<double>());
+            bool is_numpy_nan = is_float && std::isnan(item.cast<double>());
             if (!is_float || is_numpy_nan) {
                 binding::WARN("Promoting column %s to string from float64", name);
                 tbl.promote_column(name, DTYPE_STR, i, false);
@@ -476,7 +476,7 @@ namespace numpy {
 
         // Iterate through the C++ array and try to cast. Array is guaranteed to be of the correct dtype and consistent in its values.
         for (auto i = 0; i < nrows; ++i) {
-            if (std::isnan(((double*) ptr)[i]) || npy_isnan(((double*) ptr)[i])) {
+            if (std::isnan(((double*) ptr)[i]) || std::isnan(((double*) ptr)[i])) {
                 if (is_update) {
                     col->unset(i);
                 } else {

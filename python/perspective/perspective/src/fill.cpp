@@ -271,7 +271,7 @@ _fill_col_numeric(t_data_accessor accessor, t_data_table& tbl,
             } break;
             case DTYPE_FLOAT64: {
                 bool is_float = py::isinstance<py::float_>(item);
-                bool is_numpy_nan = is_float && npy_isnan(item.cast<double>());
+                bool is_numpy_nan = is_float && std::isnan(item.cast<double>());
                 if (!is_update && (!is_float || is_numpy_nan)) {
                     WARN("Promoting column %s to string from float64", name);
                     tbl.promote_column(name, DTYPE_STR, i, false);
