@@ -43,7 +43,7 @@ try {
         codecov --token 0f25973b-091f-42fe-a469-95d1c6f7a957 &&\        
         make -C ./docs html &&\        
         ${python} -m pip install -U pip backports.shutil_which &&\        
-        ${python} -m pip install .x &&\        
+        ${python} -m pip install . &&\        
         ${python} setup.py sdist &&\        
         ${python} -m pip install -U ./dist/perspective*`;
 
