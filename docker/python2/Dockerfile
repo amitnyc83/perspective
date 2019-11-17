@@ -22,22 +22,29 @@ RUN rm -fr /opt/cmake/bin/cpack
 RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 RUN ln -s /opt/cmake/bin/ctest /usr/local/bin/ctest
 
-RUN python2.7 -m pip install numpy pandas
+RUN python2.7 -m pip install numpy pandas cython 'mock==2.0.0' codecov nose2 flake8 pytest pytest-cov traitlets ipywidgets faker psutil zerorpc 'backports.shutil_which'
 
 RUN ls -al /usr/local/lib/python2.7/site-packages/numpy
 
-RUN wget https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.gz >/dev/null 2>&1  || echo "wget failed"
+# Get boost
+RUN wget https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.gz >/dev/null 2>&1  || echo "wget boost failed"
 RUN tar xfz boost_1_71_0.tar.gz
 # https://github.com/boostorg/build/issues/468
-RUN cd boost_1_71_0 && CPLUS_INCLUDE_PATH="/usr/local/include/python2.7m" C_INCLUDE_PATH="$C_INCLUDE_PATH:/usr/local/include/python2.7m" ./bootstrap.sh --with-python=/usr/local/bin/python2.7 || echo "boostrap failed"
-RUN cd boost_1_71_0 && CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:/usr/local/include/python2.7m" C_INCLUDE_PATH="$C_INCLUDE_PATH:/usr/local/include/python2.7m" ./b2 -j4 install || echo "build boost failed" 
+RUN cd boost_1_71_0 && ./bootstrap.sh || echo "boostrap failed"
+RUN cd boost_1_71_0 && ./b2 -j4 install || echo "build boost failed" 
 
-RUN ln -s /usr/local/lib/libboost_python27.so /usr/local/lib/libboost_python.so
-RUN ln -s /usr/local/lib/libboost_numpy27.so /usr/local/lib/libboost_numpy.so
-
-RUN python2.7 -m pip install 'mock==2.0.0' codecov nose2 flake8 pytest pytest-cov traitlets ipywidgets faker psutil zerorpc 'backports.shutil_which'
 RUN python2.7 -m pip install 'numpy>=1.13.1' 'pandas>=0.22.0' 'pyarrow==0.15.0' git+https://chromium.googlesource.com/external/gyp
 
+# install double-conversion
+RUN wget https://github.com/google/double-conversion/archive/v3.1.5.tar.gz >/dev/null 2>&1 || echo "wget double-conversion failed"
+RUN tar xfzv v3.1.5.tar.gz
+RUN cd double-conversion-3.1.5/ && mkdir builddir && cd builddir && cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make && sudo make install 
+# install pyarrow
+RUN wget https://github.com/apache/arrow/archive/apache-arrow-0.15.0.tar.gz >/dev/null 2>&1  || echo "wget arrow failed"
+RUN tar xfz apache-arrow-0.15.0.tar.gz
+RUN cd arrow-apache-arrow-0.15.0 && mkdir build && cd build && cmake ../cpp/ -DARROW_PYTHON=ON -DARROW_DEPENDENCY_SOURCE=BUNDLED && make -j2 && sudo make install && cd ../python && python3 -m pip install .
+
+# install node
 RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
 RUN apt-get -y install nodejs
 
