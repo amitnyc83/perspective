@@ -495,13 +495,16 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
     	
 		# Look for the binary using @loader_path (relative to binary location) instead of @rpath
 		# and include arrow in @rpath so it can be found by libbinding/libpsp
+		set(CMAKE_SKIP_BUILD_RPATH FALSE)
 		set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-		set(CMAKE_MACOSX_RPATH 1)
 
         if(MACOS)
+			set(CMAKE_MACOSX_RPATH 1)
             set(module_install_rpath "@loader_path/")
 	    else()
-            set(module_install_rpath "\$ORIGIN")
+	    	# https://cmake.org/pipermail/cmake/2008-January/019290.html
+	    	# Single $ works on centos, $$ works on our docker image
+            set(module_install_rpath "\$ORIGIN:\$\$ORIGIN")
 	    endif()
     endif()
 
@@ -520,7 +523,8 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 			target_link_libraries(psp ${Boost_FILESYSTEM_LIBRARY})
 		else()
             target_link_libraries(psp ${PYTHON_PYARROW_PYTHON_SHARED_LIBRARY} ${PYTHON_PYARROW_ARROW_SHARED_LIBRARY})
-            set_property(TARGET psp PROPERTY INSTALL_RPATH ${module_install_rpath}  ${PYTHON_PYARROW_LIBRARY_DIR})
+            target_link_libraries(psp arrow_boost_filesystem)
+            # set_property(TARGET psp PROPERTY INSTALL_RPATH ${module_install_rpath}  ${PYTHON_PYARROW_LIBRARY_DIR})
         endif()
 
 		target_link_libraries(psp ${PYTHON_LIBRARIES})
@@ -531,16 +535,18 @@ elseif(PSP_CPP_BUILD OR PSP_PYTHON_BUILD)
 
 		target_compile_definitions(binding PRIVATE PSP_ENABLE_PYTHON=1)
 		target_compile_options(binding PRIVATE -Wdeprecated-declarations)
+        # Link against libarrow 0.15.0 in pyarrow directory for windows
+        if (WIN32)
+			target_link_libraries(binding arrow)
+			target_link_libraries(psp ${Boost_FILESYSTEM_LIBRARY})
+		else()
+            target_link_libraries(binding ${PYTHON_PYARROW_PYTHON_SHARED_LIBRARY} ${PYTHON_PYARROW_ARROW_SHARED_LIBRARY})
+            target_link_libraries(binding arrow_boost_filesystem)
+            set_property(TARGET binding PROPERTY INSTALL_RPATH ${module_install_rpath}  ${PYTHON_PYARROW_LIBRARY_DIR})
+        endif()
+		target_link_libraries(binding ${PYTHON_LIBRARIES})
 		target_link_libraries(binding psp)
 		target_link_libraries(binding tbb)
-
-        if (MACOS OR LINUX)
-			# Link binding code to pyarrow
-            target_link_libraries(binding ${PYTHON_PYARROW_PYTHON_SHARED_LIBRARY} ${PYTHON_PYARROW_ARROW_SHARED_LIBRARY})
-            # Add custom @rpath to binding
-            set_property(TARGET binding PROPERTY INSTALL_RPATH ${module_install_rpath} ${PYTHON_PYARROW_LIBRARY_DIR})
-		endif()
-		target_link_libraries(binding ${PYTHON_LIBRARIES})
 		add_custom_command(TARGET binding POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:binding> ${PSP_PYTHON_SRC}/table/)
 		########################
 	else()
