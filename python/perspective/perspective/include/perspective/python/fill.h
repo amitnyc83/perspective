@@ -9,7 +9,6 @@
 #pragma once
 #ifdef PSP_ENABLE_PYTHON
 
-#include <math.h>
 #include <perspective/base.h>
 #include <perspective/binding.h>
 #include <perspective/python/base.h>

@@ -8,6 +8,7 @@
  */
 #ifdef PSP_ENABLE_PYTHON
 
+#include <math.h>
 #include <perspective/base.h>
 #include <perspective/binding.h>
 #include <perspective/python/base.h>
@@ -241,7 +242,7 @@ _fill_col_numeric(t_data_accessor accessor, t_data_table& tbl,
                     col = tbl.get_column(name);
                     type = DTYPE_FLOAT64;
                     col->set_nth(i, fval);
-                } else if (!is_update && isnan(fval)) {
+                } else if (!is_update && std::isnan(fval)) {
                     WARN("Promoting column %s to string from int32", name);
                     tbl.promote_column(name, DTYPE_STR, i, false);
                     col = tbl.get_column(name);
@@ -254,7 +255,7 @@ _fill_col_numeric(t_data_accessor accessor, t_data_table& tbl,
             } break;
             case DTYPE_INT64: {
                 double fval = item.cast<double>();
-                if (!is_update && isnan(fval)) {
+                if (!is_update && std::isnan(fval)) {
                     WARN("Promoting %s to string from int64", name);
                     tbl.promote_column(name, DTYPE_STR, i, false);
                     col = tbl.get_column(name);
