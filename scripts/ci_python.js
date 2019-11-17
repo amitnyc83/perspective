@@ -45,7 +45,7 @@ try {
         ${python} -m pip install -U pip &&\        
         ${python} -m pip install . &&\        
         ${python} setup.py sdist &&\        
-        cd dist/ && ${python} -m pip install -U ./perspective*`;
+        ${python} -m pip install -U ./dist/perspective*`;
 
     if (process.env.PSP_DOCKER) {
         cmd = `cd python/perspective && ${build_cmd}`;
