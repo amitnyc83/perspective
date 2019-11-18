@@ -60,6 +60,7 @@ matrix:
     - language: c++
       env: TEST=CPP_OSX
       os: osx
+      osx_image: xcode11.2
 
 env:
   global:
@@ -77,13 +78,14 @@ addons:
       - g++-4.9
   homebrew:
     update: true
-    packages: 
+    packages:
       - python
       - python2
       - cmake
       - boost
       - tbb
       - flatbuffers
+      - rapidjson
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export CUR_DIR=`pwd` && wget "https://github.com/google/flatbuffers/archive/v1.11.0.tar.gz" -O /tmp/flatbuffers.tar.gz && cd /tmp && tar xvfa /tmp/flatbuffers.tar.gz && cd flatbuffers-1.11.0 && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DFLATBUFFERS_BUILD_SHAREDLIB=ON && sudo make install && sudo cp flatc /usr/bin && cd $CUR_DIR && sudo rm -rf /tmp/flatbuffers.tar.gz /tmp/flatbuffers-1.11.0; fi
